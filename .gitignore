@@ -1,1 +1,4 @@
 /Frontend/node_modules
+/Backend/controllers/__pycache__
+/Backend/models/__pycache__
+/Backend/routes/__pycache__
