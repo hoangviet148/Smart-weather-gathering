@@ -5,3 +5,6 @@ class SensorData(db.Document):
     humidity = db.FloatField(required=True)
     uv = db.FloatField(required=True)
     pressure = db.FloatField(required=True)
+    wdir = db.FloatField(required=True)
+    wspd = db.FloatField(required=True)
+    conclusion = db.StringField(required=True)
