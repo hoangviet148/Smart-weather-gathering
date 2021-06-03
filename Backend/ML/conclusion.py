@@ -22,14 +22,17 @@ def get_wind_info():
 
     page = requests.get(url)
     content = json.loads(page.content)
-    obs = content['observations'][-1]
-    data = [obs['temp'], obs['rh'], obs['pressure'], obs['uv_index'], obs['wx_phrase'], obs['wdir'], obs['wspd']]
-    print(data)
-    return [data[-2], data[-1]]
+    i = 1
+    while True:
+        obs = content['observations'][-i]
+        if obs['wdir'] != None and obs['wspd'] != None:
+            return [obs['wdir'], obs['wspd']]
+        else:
+            i += 1
 
 # Load model ML
 filename = "ML\weather classifier.pkl" 
-with open(filename, 'rb') as file:  
+with open(filename, 'rb') as file: 
     model = pickle.load(file) 
 
 # Load encoder
