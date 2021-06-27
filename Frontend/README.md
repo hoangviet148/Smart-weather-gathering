@@ -1,4 +1,4 @@
-# Vue-FusionCharts Weather Dashboard
+# frontend
 
 > A Vue.js project
 

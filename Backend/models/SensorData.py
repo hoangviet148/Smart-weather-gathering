@@ -8,3 +8,4 @@ class SensorData(db.Document):
     wdir = db.FloatField(required=True)
     wspd = db.FloatField(required=True)
     conclusion = db.StringField(required=True)
+    time = db.StringField(required=True)

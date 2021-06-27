@@ -14,7 +14,3 @@ app.config['MONGODB_SETTINGS'] = {
 initialize_db(app)
 
 app.register_blueprint(sensor_bp, url_prefix='/api')
-
-if __name__ == '__main__':
-    app.debug = True
-    app.run(host="localhost", port=3000)
