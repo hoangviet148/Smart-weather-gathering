@@ -1,12 +1,12 @@
 from flask import request, jsonify
+from flask_socketio import emit, send
+
 from models.SensorData import SensorData
 from ML import conclusion, prediction
-from flask_socketio import SocketIO
 import time
 import json
 import datetime
-
-# socketio = SocketIO(app, engineio_logger=True)
+from socketIO.init import socketio
 
 def postSensorData():
     try:
@@ -25,21 +25,22 @@ def postSensorData():
         pres = data['pressure']
         data = [temp, humid, pres, uvid]
 
-        # send data via socket.io to client
-        socketData = {
-            "temp": temp,
-            "humid": humid,
-            "uvid": uvid
-        }
-
         # make conclusion
         y = conclusion.predict(data)
-        fields = ["temperature", "humidity", "uv", "pressure", "wdir", "wspd", "conclusion"]
+        fields = ["temperature", "humidity", "pressure", "uv", "wdir", "wspd", "conclusion"]
         res = {}
         for k, v in zip(fields, y):
             res[k] = v
         res["time"] = str(now.hour)
         print(res)
+         # send data via socket.io to client
+        socketData = {
+            "curTemp": temp,
+            "conclusion": res["conclusion"]
+        }
+        socketio.emit('UpdateData', socketData)
+
+        #Save data to database
         sensorData = SensorData(**res).save()
         return jsonify(sensorData), 201
     except:

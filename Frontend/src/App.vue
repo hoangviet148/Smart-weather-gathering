@@ -71,24 +71,23 @@
 </template>
 
 <script>
-import Vue from "vue";
 import Content from "./components/Content.vue";
-//import socketio from "socket.io";
-import VueSocketIO from "vue-socket.io";
-
-// Vue.use(new VueSocketIO({
-//   debug: true,
-//   connection: 'http://localhost:8888',
-// }))
 
 export default {
   name: "app",
   components: {
     "dashboard-content": Content,
   },
+
   sockets: {
     connect() {
-      console.log("socket to notification channel connected");
+      console.log("socket connected");
+    },
+    UpdateData(data) {
+      this.currentWeather.temp = data.curTemp;
+      this.currentWeather.summary = data.conclusion
+      console.log("this method was fired by the socket server: ", data);
+
     },
   },
 
@@ -105,14 +104,14 @@ export default {
         formatted_lat: "", // for N/S
         formatted_long: "", // for E/W
         time: "",
-        temp: "",
+        temp: "N/A",
         todayHighLow: {
-          todayTempHigh: "",
-          todayTempHighTime: "",
-          todayTempLow: "",
-          todayTempLowTime: "",
+          todayTempHigh: "1",
+          todayTempHighTime: "1:00 PM",
+          todayTempLow: "1",
+          todayTempLowTime: "1:00 PM",
         },
-        summary: "",
+        summary: "cal...",
         possibility: "",
       },
       tempVar: {
@@ -133,14 +132,14 @@ export default {
   },
   methods: {
     // Some utility functions
-    convertToTitleCase: function (str) {
+    convertToTitleCase(str) {
       str = str.toLowerCase().split(" ");
       for (var i = 0; i < str.length; i++) {
         str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
       }
       return str.join(" ");
     },
-    formatPossibility: function (str) {
+    formatPossibility(str) {
       str = str.toLowerCase().split("-");
       for (var i = 0; i < str.length; i++) {
         str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
@@ -151,7 +150,7 @@ export default {
       var tempInCelcius = Math.round((5 / 9) * (tempInFahrenheit - 32));
       return tempInCelcius;
     },
-    milibarToKiloPascal: function (pressureInMilibar) {
+    milibarToKiloPascal(pressureInMilibar) {
       var pressureInKPA = pressureInMilibar * 0.1;
       return Math.round(pressureInKPA);
     },
@@ -217,19 +216,10 @@ export default {
       this.currentWeather.time = new Date().toString().slice(0, 25);
     },
 
-    async createSocketConnection() {
-      try {
-      } catch (error) {
-        console.log(error + " ");
-      }
-    },
-
-    getCurrentTemp: function () {
-      //var self = this;
-      this.createSocketConnection();
+    async getCurrentTemp() {
       //var currentTemp = this.rawWeatherData.currently.temperature;
       //this.currentWeather.temp = this.fahToCel(currentTemp);
-      this.currentWeather.temp = 1;
+      //this.currentWeather.temp = 1;
     },
 
     organizeCurrentWeatherInfo() {
