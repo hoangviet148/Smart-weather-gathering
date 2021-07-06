@@ -42,14 +42,15 @@ with open(filename, 'rb') as file:
 
 def predict(data):
     wind_info = get_wind_info()
-    print('wind_info', wind_info)
+    print('=====wind_info=====', wind_info)
+    print("\n")
     data.extend(wind_info)
     X = [data]
-    print('X = ', X)
+    # print('X = ', X)
     y = model.predict(X)
-    print('y = ', y)
+    # print('y = ', y)
     conclusion = encoder.inverse_transform(y)[0]
     X[0].append(conclusion)
     
-    print(X[0])
+    # print(X[0])
     return X[0]

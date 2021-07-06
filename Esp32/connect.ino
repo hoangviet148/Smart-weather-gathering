@@ -20,16 +20,12 @@ Adafruit_BMP085 bmp;
 const char *SSID = "Hiu";
 const char *PASSWORD = "987654321";
 
-const char *serverName = "http://f56d1807322f.ngrok.io/api/postSensorData";
-
-long lastReconnectAttempt = 0;
-long lastPublishAttempt = 0;
+const char *serverName = "http://f7dfa16551d4.ngrok.io/api/postSensorData";
 
 unsigned long lastTime = 0;
-unsigned long timerDelay = 10000;
+unsigned long timerDelay = 1000;
 
-void setup()
-{
+void setup() {
     Serial.begin(115200);
     pinMode(MLPIN, INPUT);
     pinMode(REF, INPUT);
@@ -38,23 +34,17 @@ void setup()
     setupWifi();
     dht.begin();
     bool a = bmp.begin();
-    if (!bmp.begin())
-    {
+    if (!bmp.begin()) {
         Serial.println("Could not find a valid BMP085/BMP180 sensor, check wiring!");
-        while (1)
-        {
-        }
+        while (1){}
     }
 }
 
-void loop()
-{
+void loop() {
     long now = millis();
-    if ((now - lastTime) > timerDelay)
-    {
+    if ((now - lastTime) > timerDelay) {
         //Check WiFi connection status
-        if (WiFi.status() == WL_CONNECTED)
-        {
+        if (WiFi.status() == WL_CONNECTED) {
             HTTPClient http;
 
             http.begin(serverName);
@@ -67,24 +57,22 @@ void loop()
             //Use the 3.3V power pin as a reference to get a very accurate output value from sensor
             float outputVoltage = 1.0 * 3.3 / refLevel * uvLevel;
             float uvIntensity = mapfloat(outputVoltage, 0.99, 2.8, 0.0, 15.0); //Convert the voltage to a UV intensity level
-            if (isnan(uvLevel))
-            {
+            if (isnan(uvLevel)) {
                 Serial.println("Failed to read uv from ml8511 sensor!");
             }
 
             float pressure = bmp.readPressure();
-            if (isnan(pressure))
-            {
+            if (isnan(pressure)) {
                 Serial.println("Failed to read pressure from bmp sensor!");
             }
+
             float tempC = dht.readTemperature();
-            if (isnan(tempC))
-            {
+            if (isnan(tempC)) {
                 Serial.println("Failed to read tempC from DHT sensor!");
             }
+
             float humidity = dht.readHumidity();
-            if (isnan(humidity))
-            {
+            if (isnan(humidity)) {
                 Serial.println("Failed to read humi from DHT sensor!");
             }
 
@@ -97,9 +85,6 @@ void loop()
             Serial.print(F(", UV: "));
             Serial.print(uvLevel);
 
-            //int uvLevel = averageAnalogRead(MLPIN);
-            //int refLevel = averageAnalogRead(REF);
-
             StaticJsonDocument<200> doc;
 
             doc["temperature"] = tempC;
@@ -110,42 +95,34 @@ void loop()
             char out[128];
             int b = serializeJson(doc, out);
             Serial.println("\nSending message to HTTP request...");
-            //Serial.println(b);
 
             int httpResponseCode = http.POST(out);
-            if (httpResponseCode > 0)
-            {
+            if (httpResponseCode > 0) {
                 Serial.print("HTTP Response code: ");
                 Serial.println(httpResponseCode);
                 String payload = http.getString();
                 Serial.println(payload);
-            }
-            else
-            {
+            } else {
                 Serial.print("Error code: ");
                 Serial.println(httpResponseCode);
             }
             // Free resources
             http.end();
-        }
-        else
-        {
+        } else {
             Serial.println("WiFi Disconnected");
         }
         lastTime = millis();
     }
 }
 
-void setupWifi()
-{
+void setupWifi() {
     Serial.println("");
     Serial.print("Connecting to ");
     Serial.print(SSID);
 
     WiFi.begin(SSID, PASSWORD);
 
-    while (WiFi.status() != WL_CONNECTED)
-    {
+    while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.print(".");
         yield();

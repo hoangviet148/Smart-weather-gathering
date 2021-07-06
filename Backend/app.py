@@ -1,7 +1,5 @@
 from flask import Flask
 from flask_cors import CORS
-from flask_socketio import emit, send, join_room
-from flask import request
 
 from socketIO.init import createSocket, socketio
 from models.db import initialize_db
@@ -25,5 +23,4 @@ def connect():
 app.register_blueprint(sensor_bp, url_prefix='/api')
 
 if __name__ == '__main__':
-    socketio.run(app, host='127.0.0.1', port=3001)
-    # app.run(host='127.0.0.1', port=3001, debug=True)
+    socketio.run(app, host='127.0.0.1', port=3000)
