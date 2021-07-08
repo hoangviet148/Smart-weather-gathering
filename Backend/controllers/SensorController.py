@@ -53,9 +53,16 @@ def postSensorData():
     except:
         return {"msg": "Fail"}, 400
 
-def predictFutureTemp():
+def predictFutureTemp1():
     start = time.time()
-    res = str(float(prediction.get_data()))
+    res = str(float(prediction.predict_1_hour()))
+    end = time.time()
+    print('Time taken: {}'.format(end - start))
+    return res
+
+def predictFutureTemp4():
+    start = time.time()
+    res = str(float(prediction.predict_4_hour()))
     end = time.time()
     print('Time taken: {}'.format(end - start))
     return res
