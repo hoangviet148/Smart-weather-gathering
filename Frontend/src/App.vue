@@ -13,22 +13,22 @@
               <div class="temp-max-min">
                 <div class="max-desc">
                   <div id="max-detail">
-                    <i>▲</i>
-                    {{ currentWeather.todayHighLow.todayTempHigh }}
+                    <i id="1h">▲</i>
+                    {{ currentWeather.futureTemp.temp1 }}
                     <span>°C</span>
                   </div>
                   <div id="max-summary">
-                    at {{ currentWeather.todayHighLow.todayTempHighTime }}
+                    at {{ currentWeather.futureTemp.time1 }}
                   </div>
                 </div>
                 <div class="min-desc">
                   <div id="min-detail">
-                    <i>▼</i>
-                    {{ currentWeather.todayHighLow.todayTempLow }}
+                    <i id="4h">▼</i>
+                    {{ currentWeather.futureTemp.temp4 }}
                     <span>°C</span>
                   </div>
                   <div id="min-summary">
-                    at {{ currentWeather.todayHighLow.todayTempLowTime }}
+                    at {{ currentWeather.futureTemp.time4 }}
                   </div>
                 </div>
               </div>
@@ -72,6 +72,7 @@
 
 <script>
 import Content from "./components/Content.vue";
+import axios from "axios";
 
 export default {
   name: "app",
@@ -85,12 +86,15 @@ export default {
     },
     UpdateData(data) {
       this.currentWeather.temp = data.curTemp;
-      this.currentWeather.summary = data.conclusion
-      this.highlights.uvIndex = data.uv
-      this.highlights.humidity = data.humid
-      this.highlights.pressure = data.pressure
+      this.currentWeather.summary = data.conclusion;
+      this.highlights.uvIndex = data.uv;
+      this.highlights.humidity = data.humid;
+      this.highlights.pressure = data.pressure;
+      // console.log("this method was fired by the socket server: ", data);
+    },
+    UpdateFutureTempPrediction(data) {
+      console.log("=====alo=====");
       console.log("this method was fired by the socket server: ", data);
-
     },
   },
 
@@ -107,20 +111,29 @@ export default {
         formatted_lat: "", // for N/S
         formatted_long: "", // for E/W
         time: "",
-        temp: "N/A",
-        todayHighLow: {
-          todayTempHigh: "1",
-          todayTempHighTime: "1:00 PM",
-          todayTempLow: "1",
-          todayTempLowTime: "1:00 PM",
+        temp: "-",
+        futureTemp: {
+          temp1: "-",
+          time1: "-:- PM",
+          temp4: "-",
+          time4: "-:- PM",
         },
-        summary: "cal...",
+        summary: "-",
         possibility: "",
       },
       tempVar: {
         tempToday: [
           // gets added dynamically by this.getSetHourlyTempInfoToday()
-          {"hour": 1, "temp": 1}, {"hour": 2, "temp": 3}
+          { "hour": "0", temp: 26 },
+          { hour: "1", temp: 27 },
+          { hour: "2", temp: 27 },
+          { hour: "3", temp: 27.4 },
+          { hour: "4", temp: 27.5 },
+          { hour: "5", temp: 28.2 },
+          { hour: "6", temp: 29 },
+          { hour: "7", temp: 29 },
+          { hour: "8", temp: 29.8 },
+          { hour: "9", temp: 30.2 }
         ],
       },
       highlights: {
@@ -192,25 +205,58 @@ export default {
       this.currentWeather.time = new Date().toString().slice(0, 21);
     },
 
-    async getCurrentTemp() {
-      //var currentTemp = this.rawWeatherData.currently.temperature;
-      //this.currentWeather.temp = this.fahToCel(currentTemp);
-      //this.currentWeather.temp = 1;
+    async predictFutureTemp() {
+      console.log("alo")
+      let response1 = await axios.get(
+        "http://192.168.1.163:3000/api/getFutureTemp1"
+      );
+      let response4 = await axios.get(
+        "http://192.168.1.163:3000/api/getFutureTemp4"
+      );
+
+      let temp1 = response1.data - parseFloat(this.currentWeather.temp);
+      let temp4 = response4.data - parseFloat(this.currentWeather.temp);
+      if (temp1 > 0) {
+        document.getElementById("1h").innerHTML = "▲";
+      } else {
+        document.getElementById("1h").innerHTML = "▼";
+      }
+      if (temp4 > 0) {
+        document.getElementById("4h").innerHTML = "▲";
+      } else {
+        document.getElementById("4h").innerHTML = "▼";
+      }
+      this.currentWeather.futureTemp.temp1 = Math.abs(temp1.toFixed(1));
+      this.currentWeather.futureTemp.temp4 = Math.abs(temp4.toFixed(1));
+
+      let d = new Date();
+      let hours = d.getHours();
+      let ampm = hours >= 12 ? "PM" : "AM";
+      this.currentWeather.futureTemp.time1 = String(hours + 2) + ":00 " + ampm;
+      this.currentWeather.futureTemp.time4 = String(hours + 4) + ":00 " + ampm;
     },
 
     organizeCurrentWeatherInfo() {
       this.getCurrentTime();
-      this.getCurrentTemp();
+      setTimeout(() => {
+        this.predictFutureTemp();
+      }, 3000);
     },
 
-    // topmost level orchestration
+    async getSetTempChart() {
+      let res = await axios.get("http://192.168.1.163:3000/api/getChartData");
+      let chartData = res.data.chartData;
+
+      for (let i = 0; i < chartData.length; i++) {
+        this.tempVar.tempToday.push(chartData[i]);
+      }
+    },
+
     organizeAllDetails() {
-      // top level organization
       var self = this;
       self.getCoordinates();
       this.organizeCurrentWeatherInfo();
-      //this.organizeTodayHighlights();
-      //this.getSetHourlyTempInfoToday();
+      // this.getSetTempChart();
     },
   },
 

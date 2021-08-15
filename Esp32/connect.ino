@@ -17,13 +17,13 @@ WiFiClient esp32Client;
 DHT dht(DHTPIN, DHTTYPE);
 Adafruit_BMP085 bmp;
 
-const char *SSID = "Hiu";
-const char *PASSWORD = "987654321";
+const char *SSID = "xuanthangrio";
+const char *PASSWORD = "14082000";
 
-const char *serverName = "http://f7dfa16551d4.ngrok.io/api/postSensorData";
+const char *serverName = "http://192.168.1.163/api/postSensorData";
 
 unsigned long lastTime = 0;
-unsigned long timerDelay = 1000;
+unsigned long timerDelay = 10000;
 
 void setup() {
     Serial.begin(115200);

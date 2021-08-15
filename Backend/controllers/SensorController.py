@@ -33,7 +33,7 @@ def postSensorData():
         res = {}
         for k, v in zip(fields, y):
             res[k] = v
-        res["time"] = str(now.hour)
+        res["time"] = str(now)
         print("===========data after predict================")
         print(res)
 
@@ -53,19 +53,33 @@ def postSensorData():
     except:
         return {"msg": "Fail"}, 400
 
-def predictFutureTemp():
+def predictFutureTemp1():
     start = time.time()
-    res = str(float(prediction.get_data()))
+    res = round(prediction.predict_1_hour(), 1)
     end = time.time()
     print('Time taken: {}'.format(end - start))
-    return res
+    
+    return str(res)
+    
+
+def predictFutureTemp4():
+    start = time.time()
+    res = round(prediction.predict_1_hour(), 1)
+    end = time.time()
+    print('Time taken: {}'.format(end - start))
+
+    return str(res)
    
 def getChartData():
-    result = {}
-    i = 0
-    for data in SensorData.objects:
-        result[i] = data.temperature
-        i = i + 1
-    return result
+    res = []
+    hour = datetime.datetime.now().hour
+    for i in range(0, hour*720, 720):
+        obj = SensorData.objects[i]
+        record = {
+            "hour": obj.time[11:].split(":")[0],
+            "temp": obj.temperature
+        }
+        res.append(record)
 
+    return {"chartData": res}
 

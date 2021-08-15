@@ -20,7 +20,7 @@ Vue.use(VueFusionCharts, FusionCharts);
 
 Vue.use(new VueSocketIO({
   debug: true,
-  connection: 'http://localhost:3000',
+  connection: 'http://192.168.1.163:3000',
 }))
 
 // Instantiate the Vue instance that controls the application

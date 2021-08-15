@@ -1,4 +1,7 @@
 {
     "python.pythonPath": "C:\\Users\\Ashley\\AppData\\Local\\Programs\\Python\\Python39\\python.exe",
-    "python.analysis.extraPaths": ["D:\\Hust\\IOT-and-applications\\Repo\\Weather\\Backend"]
+    "python.analysis.extraPaths": [
+        "D:\\Hust\\IOT-and-applications\\Repo\\Weather\\Backend"
+    ],
+    "C_Cpp.errorSquiggles": "Enabled"
 }
